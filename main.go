@@ -44,8 +44,19 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
     http.Redirect(w, r, "/view/"+name , http.StatusFound)
 }
 
+func viewHanlder(w http.ResponseWriter, r *http.Request){
+	name := r.URL.Path[len("/view/"):]
+	p, err := loadData(name)
+	if err!=nil {
+		fmt.Println("Error: ", err)
+	}
+	t, _ := template.ParseFiles("view.html")
+	t.Execute(w, p)
+}
+
 func main() {
 	http.HandleFunc("/edit/", editHandler)
+	http.HandleFunc("/view/", viewHanlder)
 	http.HandleFunc("/save/", saveHandler)
 	if err := http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
 		fmt.Println("Error: ", err)
