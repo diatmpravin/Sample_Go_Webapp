@@ -4,6 +4,7 @@ import (
     "net/http"
 	"fmt"
 	"io/ioutil"
+	"html/template"
 )
 
 type File struct {
@@ -11,23 +12,23 @@ type File struct {
 	Body []byte
 }
 
-func loadData(title string) (*File, error) {
-	filename := title + ".txt"
+func loadData(name string) (*File, error) {
+	filename := name + ".txt"
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	return &File{Name: title, Body: body}, nil
+	return &File{Name: name, Body: body}, nil
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
-    title := r.URL.Path[len("/edit/"):]
-    p, err := loadData(title)
+    name := r.URL.Path[len("/edit/"):]
+    p, err := loadData(name)
 	if err!= nil {
-		p = &File{Name: title}
+		p = &File{Name: name}
 	}
-	fmt.Fprintf(w, string(p.Name))
-	fmt.Fprintf(w, string(p.Body))
+	t, _ := template.ParseFiles("edit.html")
+	t.Execute(w, p)
 }
 
 func main() {
