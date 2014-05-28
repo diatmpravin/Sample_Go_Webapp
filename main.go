@@ -12,6 +12,11 @@ type File struct {
 	Body []byte
 }
 
+func (f File) save() error {
+	name := f.Name + ".txt"
+	return ioutil.WriteFile(name, f.Body, 0666)
+}
+
 func loadData(name string) (*File, error) {
 	filename := name + ".txt"
 	body, err := ioutil.ReadFile(filename)
@@ -31,8 +36,17 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, p)
 }
 
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Path[len("/save/"):]
+	body := r.FormValue("body")
+	p := &File{Name: name, Body: []byte(body)}
+	p.save()
+    http.Redirect(w, r, "/view/"+name , http.StatusFound)
+}
+
 func main() {
 	http.HandleFunc("/edit/", editHandler)
+	http.HandleFunc("/save/", saveHandler)
 	if err := http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
 		fmt.Println("Error: ", err)
 	}

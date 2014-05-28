@@ -1,4 +1,4 @@
-Sample_Go_Webapp
+Sample Go Webapp
 ================
 
 Sample Golang WebApp
